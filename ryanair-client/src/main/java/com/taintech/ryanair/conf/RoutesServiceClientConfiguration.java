@@ -21,7 +21,7 @@ public class RoutesServiceClientConfiguration {
     }
 
     @Bean
-    public RoutesServiceClient routesService(RoutesServiceClientProperties properties, RestTemplate restTemplate) {
+    public RoutesServiceClient routesServiceClient(RoutesServiceClientProperties properties, RestTemplate restTemplate) {
         return new RoutesServiceClient(properties.getUrl(), restTemplate);
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Date: 11/02/2017
  */
 @ConfigurationProperties("ryanair.schedules")
-public class SchedulesServiceProperties {
+public class SchedulesServiceClientProperties {
     private String url;
 
     public String getUrl() {

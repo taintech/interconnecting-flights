@@ -25,7 +25,7 @@ public class RoutesServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<Route> loadRoutes() {
+    public List<Route> getAvailableRoutes() {
         ResponseEntity<List<Route>> routeResponse =
                 restTemplate.exchange(url,
                         HttpMethod.GET, null, new ParameterizedTypeReference<List<Route>>() {

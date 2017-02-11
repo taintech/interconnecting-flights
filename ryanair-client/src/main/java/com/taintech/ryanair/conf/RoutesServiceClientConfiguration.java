@@ -1,23 +1,27 @@
 package com.taintech.ryanair.conf;
 
-import com.taintech.ryanair.props.RoutesServiceProperties;
+import com.taintech.ryanair.props.RoutesServiceClientProperties;
 import com.taintech.ryanair.client.RoutesServiceClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Author: Rinat Tainov
  * Date: 11/02/2017
  */
 @Configuration
-@EnableConfigurationProperties(RoutesServiceProperties.class)
+@EnableConfigurationProperties(RoutesServiceClientProperties.class)
 public class RoutesServiceClientConfiguration {
 
     @Bean
-    public RoutesServiceClient routesService(RoutesServiceProperties properties,
-                                             RestTemplateBuilder restTemplateBuilder){
-        return new RoutesServiceClient(properties.getUrl(), restTemplateBuilder);
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public RoutesServiceClient routesService(RoutesServiceClientProperties properties, RestTemplate restTemplate) {
+        return new RoutesServiceClient(properties.getUrl(), restTemplate);
     }
 }

@@ -1,7 +1,6 @@
 package com.taintech.ryanair.client;
 
 import com.taintech.ryanair.model.Route;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -21,13 +20,9 @@ public class RoutesServiceClient {
     private String url;
     private final RestTemplate restTemplate;
 
-    public RoutesServiceClient(String url, RestTemplateBuilder restTemplateBuilder) {
+    public RoutesServiceClient(String url, RestTemplate restTemplate) {
         this.url = url;
-        this.restTemplate = restTemplateBuilder.build();
-    }
-
-    public String getUrl() {
-        return url;
+        this.restTemplate = restTemplate;
     }
 
     public List<Route> loadRoutes() {

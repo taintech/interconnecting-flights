@@ -1,21 +1,23 @@
 package com.taintech.interconnflights;
 
 import com.taintech.ryanair.client.RoutesServiceClient;
+import com.taintech.ryanair.conf.RoutesServiceClientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Controller;
+import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Author: Rinat Tainov
  * Date: 11/02/2017
  */
 @SpringBootApplication
-@Controller
+@Import(RoutesServiceClientConfiguration.class)
+@RestController
 public class Application {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -31,8 +33,8 @@ public class Application {
         this.routesServiceClient = routesServiceClient;
     }
 
-    @Bean
-    public CommandLineRunner run() throws Exception {
-        return args -> log.info(routesServiceClient.loadRoutes().toString());
+    @GetMapping("/")
+    public String home() {
+        return routesServiceClient.loadRoutes().toString();
     }
 }

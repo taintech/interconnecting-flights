@@ -30,7 +30,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.example</groupId>
+            <groupId>com.taintech</groupId>
             <artifactId>ryanair-client-library</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,21 +78,32 @@ public class InterconnectingFlightsController {
         DateTime arrivalDT = patternFormat.parseDateTime(arrivalDateTime);
         log.info("depDT: " + departureDT.toString());
         log.info("arrDT: " + arrivalDT.toString());
-        List<InterConnection> interConnections = new ArrayList<>();
-        while(arrivalDT.isAfter(departureDT)){
-            for (Path path: paths) {
-                for(Edge edge: path.getEdges()){
-                    List<Connection> connections = new ArrayList<>();
-                    for(Connection conn: getMonthConnections(departureDT.getYear(), departureDT.getMonthOfYear(), edge)){
-                        if(conn.getArrival().isBefore(arrivalDT))
-                            connections.add(conn);
-                    }
-                    interConnections.add(new InterConnection(connections.size()-1, connections));
-                }
+//        List<InterConnection> interConnections = new ArrayList<>();
+//        while(arrivalDT.isAfter(departureDT)){
+//            for (Path path: paths) {
+//                for(Edge edge: path.getEdges()){
+//                    List<Connection> connections = new ArrayList<>();
+//                    for(Connection conn: getMonthConnections(departureDT.getYear(), departureDT.getMonthOfYear(), edge)){
+//                        if(conn.getArrival().isBefore(arrivalDT))
+//                            connections.add(conn);
+//                    }
+//                    interConnections.add(new InterConnection(connections.size()-1, connections));
+//                }
+//            }
+//            departureDT = departureDT.plusMonths(1);
+//        }
+        List<Path> pathList = routesGraph.directPaths(departure, arrival);
+        if(pathList.isEmpty())
+            return Collections.emptyList();
+        else {
+            Path directPath = pathList.get(0);
+            List<InterConnection> interConnections = new ArrayList<>();
+            while(arrivalDT.isAfter(departureDT)) {
+                interConnections.addAll(directInterconnections(departureDT, arrivalDT, directPath));
+                departureDT = departureDT.plusMonths(1);
             }
-            departureDT = departureDT.plusMonths(1);
+            return interConnections;
         }
-        return interConnections;
     }
 
     private List<Connection> getMonthConnections(int year, int month, Edge edge){
@@ -111,4 +124,16 @@ public class InterconnectingFlightsController {
         }
         return connections;
     }
+
+    private List<InterConnection> directInterconnections(DateTime departure, DateTime arrival, Path directPath) {
+        Edge edge = directPath.getEdges().get(0);
+        List<Connection> connections = getMonthConnections(departure.getYear(), departure.getMonthOfYear(), edge);
+        List<InterConnection> interConnections = new ArrayList<>();
+        for (Connection conn: connections){
+            if (conn.getArrival().isBefore(arrival))
+                interConnections.add(new InterConnection(0, Collections.singletonList(conn)));
+        }
+        return interConnections;
+    }
+
 }

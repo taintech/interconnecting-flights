@@ -25,6 +25,11 @@ public class RoutesGraph {
         }
     }
 
+    public List<Path> directPaths(String startNode, String endNode) {
+        List<Edge> directEdge = findEdges(Collections.singleton(startNode), endNode);
+        return directEdge.isEmpty()?Collections.emptyList():Collections.singletonList(new Path(directEdge));
+    }
+
     public List<Path> maxOneConnectionPaths(String startNode, String endNode) {
         List<Path> paths = new ArrayList<>();
         List<Edge> directEdge = findEdges(Collections.singleton(startNode), endNode);

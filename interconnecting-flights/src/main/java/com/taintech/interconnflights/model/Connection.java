@@ -1,5 +1,7 @@
 package com.taintech.interconnflights.model;
 
+import org.joda.time.DateTime;
+
 /**
  * Author: Rinat Tainov
  * Date: 11/02/2017
@@ -7,10 +9,10 @@ package com.taintech.interconnflights.model;
 public class Connection {
     private String departureAirport;
     private String arrivalAirport;
-    private String departureDateTime;
-    private String arrivalDateTime;
+    private DateTime departureDateTime;
+    private DateTime arrivalDateTime;
 
-    public Connection(String departureAirport, String arrivalAirport, String departureDateTime, String arrivalDateTime) {
+    public Connection(String departureAirport, String arrivalAirport, DateTime departureDateTime, DateTime arrivalDateTime) {
         this.departureAirport = departureAirport;
         this.arrivalAirport = arrivalAirport;
         this.departureDateTime = departureDateTime;
@@ -33,19 +35,29 @@ public class Connection {
         this.arrivalAirport = arrivalAirport;
     }
 
-    public String getDepartureDateTime() {
+    public DateTime getDepartureDateTime() {
         return departureDateTime;
     }
 
-    public void setDepartureDateTime(String departureDateTime) {
+    public void setDepartureDateTime(DateTime departureDateTime) {
         this.departureDateTime = departureDateTime;
     }
 
-    public String getArrivalDateTime() {
+    public DateTime getArrivalDateTime() {
         return arrivalDateTime;
     }
 
-    public void setArrivalDateTime(String arrivalDateTime) {
+    public void setArrivalDateTime(DateTime arrivalDateTime) {
         this.arrivalDateTime = arrivalDateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Connection{" +
+                "departureAirport='" + departureAirport + '\'' +
+                ", arrivalAirport='" + arrivalAirport + '\'' +
+                ", departureDateTime=" + departureDateTime +
+                ", arrivalDateTime=" + arrivalDateTime +
+                '}';
     }
 }

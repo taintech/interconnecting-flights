@@ -1,5 +1,6 @@
 package com.taintech.interconnflights.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
 
 /**
@@ -9,46 +10,44 @@ import org.joda.time.DateTime;
 public class Connection {
     private String departureAirport;
     private String arrivalAirport;
-    private DateTime departureDateTime;
-    private DateTime arrivalDateTime;
+    private String departureDateTime;
+    private String arrivalDateTime;
+    @JsonIgnore
+    private DateTime departure;
+    @JsonIgnore
+    private DateTime arrival;
 
-    public Connection(String departureAirport, String arrivalAirport, DateTime departureDateTime, DateTime arrivalDateTime) {
+    public Connection(String departureAirport, String arrivalAirport, DateTime departure, DateTime arrival) {
         this.departureAirport = departureAirport;
         this.arrivalAirport = arrivalAirport;
-        this.departureDateTime = departureDateTime;
-        this.arrivalDateTime = arrivalDateTime;
+        this.departure = departure;
+        this.arrival = arrival;
+        this.departureDateTime = departure.toString("yyyy-MM-dd'T'HH:mm");
+        this.arrivalDateTime = arrival.toString("yyyy-MM-dd'T'HH:mm");
     }
 
     public String getDepartureAirport() {
         return departureAirport;
     }
 
-    public void setDepartureAirport(String departureAirport) {
-        this.departureAirport = departureAirport;
-    }
-
     public String getArrivalAirport() {
         return arrivalAirport;
     }
 
-    public void setArrivalAirport(String arrivalAirport) {
-        this.arrivalAirport = arrivalAirport;
-    }
-
-    public DateTime getDepartureDateTime() {
+    public String getDepartureDateTime() {
         return departureDateTime;
     }
 
-    public void setDepartureDateTime(DateTime departureDateTime) {
-        this.departureDateTime = departureDateTime;
-    }
-
-    public DateTime getArrivalDateTime() {
+    public String getArrivalDateTime() {
         return arrivalDateTime;
     }
 
-    public void setArrivalDateTime(DateTime arrivalDateTime) {
-        this.arrivalDateTime = arrivalDateTime;
+    public DateTime getDeparture() {
+        return departure;
+    }
+
+    public DateTime getArrival() {
+        return arrival;
     }
 
     @Override
@@ -56,8 +55,10 @@ public class Connection {
         return "Connection{" +
                 "departureAirport='" + departureAirport + '\'' +
                 ", arrivalAirport='" + arrivalAirport + '\'' +
-                ", departureDateTime=" + departureDateTime +
-                ", arrivalDateTime=" + arrivalDateTime +
+                ", departureDateTime='" + departureDateTime + '\'' +
+                ", arrivalDateTime='" + arrivalDateTime + '\'' +
+                ", departure=" + departure +
+                ", arrival=" + arrival +
                 '}';
     }
 }

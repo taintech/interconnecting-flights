@@ -44,33 +44,21 @@ public class InterconnectingFlightsController {
         this.schedulesServiceClient = schedulesServiceClient;
     }
 
-    @GetMapping("/")
-    public String home() {
-        return routesServiceClient.getAvailableRoutes().toString();
-    }
-
-    @GetMapping("/wrowaw")
-    public String fligths() {
-        return adaptMonth(2017, 6, new Edge("WRO", "WAW"),schedulesServiceClient.getSchedules("WRO", "WAW", 2017, 6)).toString();
-    }
-
-    @GetMapping("/explore")
-    public String exploreTimeShift() {
-        List<Connection> suspects = new ArrayList<>();
-        for (Route route: routesServiceClient.getAvailableRoutes()) {
-            Month month = schedulesServiceClient.getSchedules(route.getAirportFrom(), route.getAirportTo(), 2017, 3);
-            List<Connection> connections = adaptMonth(2017, 3, convertRoute(route), month);
-            for(Connection suspect: connections) {
-                if (suspect.getDepartureDateTime().getHourOfDay()==23){
-                    suspects.add(suspect);
-                }
-            }
+    @GetMapping(value = "/paths")
+    public List<Path> paths(
+            @RequestParam(value="departure") String departure,
+            @RequestParam(value="arrival") String arrival) {
+        List<Route> availableRoutes = routesServiceClient.getAvailableRoutes();
+        RoutesGraph routesGraph = new RoutesGraph();
+        for (Route route: availableRoutes){
+            routesGraph.connect(new Edge(route.getAirportFrom(), route.getAirportTo()));
         }
-        return suspects.toString();
+        List<Path> paths = routesGraph.maxOneConnectionPaths(departure, arrival);
+        return paths;
     }
 
     @GetMapping(value = "/interconnections")
-    public List<Path> interconnections(
+    public List<InterConnection> interconnections(
             @RequestParam(value="departure") String departure,
             @RequestParam(value="arrival") String arrival,
             @RequestParam(value="departureDateTime") String departureDateTime,
@@ -88,27 +76,30 @@ public class InterconnectingFlightsController {
         DateTime arrivalDT = patternFormat.parseDateTime(arrivalDateTime);
         log.info("depDT: " + departureDT.toString());
         log.info("arrDT: " + arrivalDT.toString());
-//        schedulesServiceClient.getSchedules()
-
-
-        return paths;
+        List<InterConnection> interConnections = new ArrayList<>();
+        while(arrivalDT.isAfter(departureDT)){
+            for (Path path: paths) {
+                for(Edge edge: path.getEdges()){
+                    List<Connection> connections = new ArrayList<>();
+                    for(Connection conn: getMonthConnections(departureDT.getYear(), departureDT.getMonthOfYear(), edge)){
+                        if(conn.getArrival().isBefore(arrivalDT))
+                            connections.add(conn);
+                    }
+                    interConnections.add(new InterConnection(connections.size()-1, connections));
+                }
+            }
+            departureDT = departureDT.plusMonths(1);
+        }
+        return interConnections;
     }
 
-    private InterConnection getInterConnection(Path path, DateTime departure, DateTime arrival) {
-        return null;
-    }
-
-    private List<Flight> getFlights(Edge edge, DateTime departure, DateTime arrival){
-        schedulesServiceClient.getSchedules(edge.getStart(), edge.getEnd(), departure.getYear(), departure.getMonthOfYear());
-        return null;
-    }
-
-    private List<Connection> adaptMonth(int year, int month, Edge edge, Month monthSchedules){
+    private List<Connection> getMonthConnections(int year, int month, Edge edge){
+        Month monthSchedules = schedulesServiceClient.getSchedules(edge.getStart(), edge.getEnd(), year, month);
         List<Connection> connections = new ArrayList<>();
         for (Day day: monthSchedules.getDays()) {
             for (Flight flight: day.getFlights()) {
-                int departureHour = Integer.parseInt((flight.getArrivalTime().split(":"))[0]);
-                int departureMinute = Integer.parseInt((flight.getArrivalTime().split(":"))[1]);
+                int departureHour = Integer.parseInt((flight.getDepartureTime().split(":"))[0]);
+                int departureMinute = Integer.parseInt((flight.getDepartureTime().split(":"))[1]);
                 int arrivalHour = Integer.parseInt((flight.getArrivalTime().split(":"))[0]);
                 int arrivalMinute = Integer.parseInt((flight.getArrivalTime().split(":"))[1]);
                 Connection conn = new Connection(edge.getStart(),
@@ -119,9 +110,5 @@ public class InterconnectingFlightsController {
             }
         }
         return connections;
-    }
-
-    private Edge convertRoute(Route route) {
-        return new Edge(route.getAirportFrom(), route.getAirportFrom());
     }
 }

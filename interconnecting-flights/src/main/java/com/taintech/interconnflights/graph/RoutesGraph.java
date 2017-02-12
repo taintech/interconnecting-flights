@@ -1,9 +1,6 @@
 package com.taintech.interconnflights.graph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Author: Rinat Tainov
@@ -18,7 +15,9 @@ public class RoutesGraph {
 
     public void connect(Edge edge) {
         if (map.containsKey(edge.getStart())) {
-            map.get(edge.getStart()).add(edge.getEnd());
+            Set<String> connections = map.get(edge.getStart());
+            connections.add(edge.getEnd());
+            map.put(edge.getStart(), connections);
         } else {
             Set<String> routes = new HashSet<>();
             routes.add(edge.getEnd());
@@ -26,9 +25,27 @@ public class RoutesGraph {
         }
     }
 
-    public List<Path> possiblePaths(String startNode, String endNode, int maxDistance) {
-        //TODO
-        return null;
+    public List<Path> maxOneConnectionPaths(String startNode, String endNode) {
+        List<Path> paths = new ArrayList<>();
+        List<Edge> directEdge = findEdges(Collections.singleton(startNode), endNode);
+        if (!directEdge.isEmpty()) {
+            paths.add(new Path(directEdge));
+        }
+        for (Edge endEdge: findEdges(map.get(startNode), endNode)){
+            Edge startEdge = new Edge(startNode, endEdge.getStart());
+            paths.add(new Path(Arrays.asList(startEdge, endEdge)));
+        }
+        return paths;
+    }
+
+    private List<Edge> findEdges(Set<String> startNodes, String endNode){
+        List<Edge> edges = new ArrayList<>();
+        for (String node: startNodes) {
+            if (map.get(node).contains(endNode)){
+                edges.add(new Edge(node, endNode));
+            }
+        }
+        return edges;
     }
 
     @Override

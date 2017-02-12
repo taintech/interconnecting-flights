@@ -47,7 +47,7 @@ public class InterconnectingFlightsController {
     }
 
     @GetMapping(value = "/interconnections")
-    public List<InterConnection> interconnections(
+    public List<Path> interconnections(
             @RequestParam(value="departure") String departure,
             @RequestParam(value="arrival") String arrival,
             @RequestParam(value="departureDateTime") String departureDateTime,
@@ -55,10 +55,9 @@ public class InterconnectingFlightsController {
         List<Route> availableRoutes = routesServiceClient.getAvailableRoutes();
         RoutesGraph routesGraph = new RoutesGraph();
         for (Route route: availableRoutes){
-            routesGraph.connect(new Edge(route.getAirportFrom(), route.getAirportFrom()));
+            routesGraph.connect(new Edge(route.getAirportFrom(), route.getAirportTo()));
         }
-        List<Path> paths = routesGraph.possiblePaths(departure, arrival, 1);
-
-        return null;
+        List<Path> paths = routesGraph.maxOneConnectionPaths(departure, arrival);
+        return paths;
     }
 }

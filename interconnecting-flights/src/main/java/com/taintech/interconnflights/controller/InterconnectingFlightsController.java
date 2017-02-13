@@ -49,7 +49,7 @@ public class InterconnectingFlightsController {
     public List<Path> paths(
             @RequestParam(value="departure") String departure,
             @RequestParam(value="arrival") String arrival) {
-        return buildRoutesGraph(routesServiceClient.getAvailableRoutes()).maxOneConnectionPaths(departure, arrival);
+        return buildRoutesGraph(routesServiceClient.getAvailableRoutes()).getMaxOneConnectionPaths(new Edge(departure, arrival));
     }
 
     @GetMapping(value = "/interconnections")
@@ -60,7 +60,7 @@ public class InterconnectingFlightsController {
             @RequestParam(value="arrivalDateTime") String arrivalDateTime) {
         List<Route> availableRoutes = routesServiceClient.getAvailableRoutes();
         RoutesGraph routesGraph = buildRoutesGraph(availableRoutes);
-        //TODO move out
+        //TODO reuse pattern
         DateTimeFormatter patternFormat = new DateTimeFormatterBuilder()
                 .appendPattern("yyyy-MM-dd'T'HH:mm")
                 .toFormatter();
@@ -84,26 +84,27 @@ public class InterconnectingFlightsController {
                                                             String arrival,
                                                             DateTime departureDT,
                                                             DateTime arrivalDT) {
-        List<Path> pathList = routesGraph.directPaths(departure, arrival);
+        List<Path> pathList = routesGraph.getDirectPaths(new Edge(departure, arrival));
         if(pathList.isEmpty())
             return Collections.emptyList();
         else {
             Path directPath = pathList.get(0);
             List<InterConnection> interConnections = new ArrayList<>();
-            while(arrivalDT.isAfter(departureDT)) {
-                interConnections.addAll(getDirectPathInterconnections(departureDT, arrivalDT, directPath));
-                departureDT = departureDT.plusMonths(1);
+            DateTime requestDate = new DateTime(departureDT).withDayOfMonth(1).withTimeAtStartOfDay();
+            while(arrivalDT.isAfter(requestDate)) {
+                interConnections.addAll(getDirectPathInterconnections(departureDT, arrivalDT, directPath, requestDate));
+                requestDate = requestDate.plusMonths(1);
             }
             return interConnections;
         }
     }
 
-    private List<InterConnection> getDirectPathInterconnections(DateTime departure, DateTime arrival, Path directPath) {
+    private List<InterConnection> getDirectPathInterconnections(DateTime departure, DateTime arrival, Path directPath, DateTime requestDate) {
         Edge edge = directPath.getEdges().get(0);
-        List<Connection> connections = getMonthConnections(departure.getYear(), departure.getMonthOfYear(), edge);
+        List<Connection> connections = getMonthConnections(requestDate.getYear(), requestDate.getMonthOfYear(), edge);
         List<InterConnection> interConnections = new ArrayList<>();
         for (Connection conn: connections){
-            if (conn.getArrival().isBefore(arrival))
+            if (conn.getDeparture().isAfter(departure) && conn.getArrival().isBefore(arrival))
                 interConnections.add(new InterConnection(0, Collections.singletonList(conn)));
         }
         return interConnections;

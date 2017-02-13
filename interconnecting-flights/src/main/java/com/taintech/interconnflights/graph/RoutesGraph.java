@@ -25,19 +25,24 @@ public class RoutesGraph {
         }
     }
 
-    public List<Path> directPaths(String startNode, String endNode) {
-        List<Edge> directEdge = findEdges(Collections.singleton(startNode), endNode);
+    public List<Path> getDirectPaths(Edge edge) {
+        List<Edge> directEdge = findEdges(Collections.singleton(edge.getStart()), edge.getEnd());
         return directEdge.isEmpty()?Collections.emptyList():Collections.singletonList(new Path(directEdge));
     }
 
-    public List<Path> maxOneConnectionPaths(String startNode, String endNode) {
+    public List<Path> getOneConnectionPaths(Edge edge) {
         List<Path> paths = new ArrayList<>();
-        List<Path> directPaths = directPaths(startNode, endNode);
-        paths.addAll(directPaths);
-        for (Edge endEdge: findEdges(map.get(startNode), endNode)){
-            Edge startEdge = new Edge(startNode, endEdge.getStart());
+        for (Edge endEdge: findEdges(map.get(edge.getStart()), edge.getEnd())){
+            Edge startEdge = new Edge(edge.getStart(), endEdge.getStart());
             paths.add(new Path(Arrays.asList(startEdge, endEdge)));
         }
+        return paths;
+    }
+
+    public List<Path> getMaxOneConnectionPaths(Edge edge) {
+        List<Path> paths = new ArrayList<>();
+        paths.addAll(getDirectPaths(edge));
+        paths.addAll(getOneConnectionPaths(edge));
         return paths;
     }
 

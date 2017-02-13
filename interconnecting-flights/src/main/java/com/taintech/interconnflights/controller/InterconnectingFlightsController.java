@@ -15,8 +15,6 @@ import com.taintech.ryanair.model.Month;
 import com.taintech.ryanair.model.Route;
 import org.joda.time.DateTime;
 import org.joda.time.Hours;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,30 +56,21 @@ public class InterconnectingFlightsController {
 
     @GetMapping(value = "/interconnections")
     public List<InterConnection> interconnections(
-            @RequestParam(value="departure") String departure,//TODO refactor request params into model
+            @RequestParam(value="departure") String departure,
             @RequestParam(value="arrival") String arrival,
             @RequestParam(value="departureDateTime") String departureDateTime,
             @RequestParam(value="arrivalDateTime") String arrivalDateTime) {
+        Connection request = new Connection(departure, arrival, departureDateTime, arrivalDateTime);
         List<Route> availableRoutes = routesServiceClient.getAvailableRoutes();
         RoutesGraph routesGraph = buildRoutesGraph(availableRoutes);
-        //TODO reuse pattern
-        DateTimeFormatter patternFormat = new DateTimeFormatterBuilder()
-                .appendPattern("yyyy-MM-dd'T'HH:mm")
-                .toFormatter();
-        DateTime departureDT = patternFormat.parseDateTime(departureDateTime);
-        DateTime arrivalDT = patternFormat.parseDateTime(arrivalDateTime);
-
-        List<InterConnection> directInterconnections = getDirectInterconnections(routesGraph, departure, arrival,departureDT,arrivalDT);
-        List<InterConnection> oneStopInterconnections = getOneStopInterconnections(routesGraph, departure, arrival,departureDT,arrivalDT);
+        List<InterConnection> directInterconnections = getDirectInterconnections(routesGraph, request);
+        List<InterConnection> oneStopInterconnections = getOneStopInterconnections(routesGraph, request);
         return  Stream.concat(directInterconnections.stream(), oneStopInterconnections.stream()).collect(Collectors.toList());
     }
 
     private List<InterConnection> getOneStopInterconnections(RoutesGraph routesGraph,
-                                                             String departure,
-                                                             String arrival,
-                                                             DateTime departureDT,
-                                                             DateTime arrivalDT) {
-        List<Path> oneStopPaths = routesGraph.getOneConnectionPaths(new Edge(departure, arrival));
+                                                             Connection request) {
+        List<Path> oneStopPaths = routesGraph.getOneConnectionPaths(new Edge(request.getDepartureAirport(), request.getArrivalAirport()));
         if(oneStopPaths.isEmpty() || oneStopPaths.get(0).getEdges().size()<2)
             return Collections.emptyList();
         else {
@@ -89,9 +78,9 @@ public class InterconnectingFlightsController {
             for(Path path: oneStopPaths){
                 List<InterConnection> interConnections = new ArrayList<>();
                 Edge edgeOne = path.getEdges().get(0);
-                List<InterConnection> edgeOneInterconnections = getEdgeInterconnectionsWithDateFix(edgeOne, departureDT, arrivalDT);
+                List<InterConnection> edgeOneInterconnections = getEdgeInterconnectionsWithDateFix(edgeOne, request.getDeparture(), request.getArrival());
                 Edge edgeTwo = path.getEdges().get(1);
-                List<InterConnection> edgeTwoInterconnections = getEdgeInterconnectionsWithDateFix(edgeTwo, departureDT, arrivalDT);
+                List<InterConnection> edgeTwoInterconnections = getEdgeInterconnectionsWithDateFix(edgeTwo, request.getDeparture(), request.getArrival());
                 for(InterConnection interConnectionOne: edgeOneInterconnections){
                     for(Connection connOne: interConnectionOne.getLegs()){
                         for(InterConnection interConnectionTwo: edgeTwoInterconnections) {
@@ -111,25 +100,22 @@ public class InterconnectingFlightsController {
     }
 
     private List<InterConnection> getDirectInterconnections(RoutesGraph routesGraph,
-                                                            String departure,
-                                                            String arrival,
-                                                            DateTime departureDT,
-                                                            DateTime arrivalDT) {
-        List<Path> directPaths = routesGraph.getDirectPaths(new Edge(departure, arrival));
+                                                            Connection request) {
+        List<Path> directPaths = routesGraph.getDirectPaths(new Edge(request.getDepartureAirport(), request.getArrivalAirport()));
         if(directPaths.isEmpty()||directPaths.get(0).getEdges().isEmpty())
             return Collections.emptyList();
         else {
-            return getEdgeInterconnectionsWithDateFix(directPaths.get(0).getEdges().get(0), departureDT, arrivalDT);
+            return getEdgeInterconnectionsWithDateFix(directPaths.get(0).getEdges().get(0), request.getDeparture(), request.getArrival());
         }
     }
 
     private List<InterConnection> getEdgeInterconnectionsWithDateFix(Edge edge,
-                                                                     DateTime departureDT,
-                                                                     DateTime arrivalDT) {
+                                                                     DateTime departureDateTime,
+                                                                     DateTime arrivalDateTime) {
         List<InterConnection> interConnections = new ArrayList<>();
-        DateTime requestDate = new DateTime(departureDT).withDayOfMonth(1).withTimeAtStartOfDay();
-        while(arrivalDT.isAfter(requestDate)) {
-            interConnections.addAll(getEdgeInterconnections(departureDT, arrivalDT, edge, requestDate));
+        DateTime requestDate = new DateTime(departureDateTime).withDayOfMonth(1).withTimeAtStartOfDay();
+        while(arrivalDateTime.isAfter(requestDate)) {
+            interConnections.addAll(getEdgeInterconnections(departureDateTime, arrivalDateTime, edge, requestDate));
             requestDate = requestDate.plusMonths(1);
         }
         return interConnections;

@@ -2,12 +2,21 @@ package com.taintech.interconnflights.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
  * Author: Rinat Tainov
  * Date: 12/02/2017
  */
 public class Connection {
+
+    private static final String ISO_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm";
+    private static final DateTimeFormatter PATTERN_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern(ISO_DATE_PATTERN)
+            .toFormatter();
+
     private String departureAirport;
     private String arrivalAirport;
     private String departureDateTime;
@@ -17,14 +26,22 @@ public class Connection {
     @JsonIgnore
     private DateTime arrival;
 
+    public Connection(String departureAirport, String arrivalAirport, String departureDateTime, String arrivalDateTime) {
+        this.departureAirport = departureAirport;
+        this.arrivalAirport = arrivalAirport;
+        this.departureDateTime = departureDateTime;
+        this.arrivalDateTime = arrivalDateTime;
+        this.departure = PATTERN_FORMATTER.parseDateTime(departureDateTime);
+        this.arrival = PATTERN_FORMATTER.parseDateTime(arrivalDateTime);
+    }
+
     public Connection(String departureAirport, String arrivalAirport, DateTime departure, DateTime arrival) {
         this.departureAirport = departureAirport;
         this.arrivalAirport = arrivalAirport;
         this.departure = departure;
         this.arrival = arrival;
-        //TODO reuse pattern form controller
-        this.departureDateTime = departure.toString("yyyy-MM-dd'T'HH:mm");
-        this.arrivalDateTime = arrival.toString("yyyy-MM-dd'T'HH:mm");
+        this.departureDateTime = departure.toString(PATTERN_FORMATTER);
+        this.arrivalDateTime = arrival.toString(PATTERN_FORMATTER);
     }
 
     public String getDepartureAirport() {

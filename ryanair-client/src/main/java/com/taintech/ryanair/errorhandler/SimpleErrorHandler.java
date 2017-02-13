@@ -30,7 +30,7 @@ public class SimpleErrorHandler implements ResponseErrorHandler {
     public void handleError(ClientHttpResponse response) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getBody()));
         String line;
-        while((line = bufferedReader.readLine()) != null){
+        while ((line = bufferedReader.readLine()) != null) {
             log.error(line);
         }
         throw new UnexpectedException("Unexpected exception in RyanAir service!");

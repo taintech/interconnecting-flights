@@ -26,23 +26,23 @@ public class InterconnectingFlightsController {
     private InterconnectionsService interconnectionsService;
 
     @Autowired
-    public InterconnectingFlightsController(InterconnectionsService interconnectionsService){
+    public InterconnectingFlightsController(InterconnectionsService interconnectionsService) {
         this.interconnectionsService = interconnectionsService;
     }
 
     @GetMapping(value = "/paths")
     public List<Path> paths(
-            @RequestParam(value="departure") String departure,
-            @RequestParam(value="arrival") String arrival) {
+            @RequestParam(value = "departure") String departure,
+            @RequestParam(value = "arrival") String arrival) {
         return interconnectionsService.getConnectionPaths(departure, arrival);
     }
 
     @GetMapping(value = "/interconnections")
     public List<InterConnection> interconnections(
-            @RequestParam(value="departure") String departure,
-            @RequestParam(value="arrival") String arrival,
-            @RequestParam(value="departureDateTime") String departureDateTime,
-            @RequestParam(value="arrivalDateTime") String arrivalDateTime) {
+            @RequestParam(value = "departure") String departure,
+            @RequestParam(value = "arrival") String arrival,
+            @RequestParam(value = "departureDateTime") String departureDateTime,
+            @RequestParam(value = "arrivalDateTime") String arrivalDateTime) {
         Connection request = new Connection(departure, arrival, departureDateTime, arrivalDateTime);
         return interconnectionsService.getInterconnections(request);
     }

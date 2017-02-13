@@ -3,6 +3,7 @@ package com.taintech.ryanair.client;
 import com.taintech.ryanair.model.Month;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 /**
  * Author: Rinat Tainov
  * Date: 12/02/2017

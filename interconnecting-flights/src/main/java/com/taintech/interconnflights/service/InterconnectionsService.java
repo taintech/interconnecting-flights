@@ -54,17 +54,17 @@ public class InterconnectionsService {
         RoutesGraph routesGraph = buildRoutesGraph(availableRoutes);
         List<InterConnection> directInterconnections = getDirectInterconnections(routesGraph, request);
         List<InterConnection> oneStopInterconnections = getOneStopInterconnections(routesGraph, request);
-        return  Stream.concat(directInterconnections.stream(), oneStopInterconnections.stream()).collect(Collectors.toList());
+        return Stream.concat(directInterconnections.stream(), oneStopInterconnections.stream()).collect(Collectors.toList());
     }
 
     private List<InterConnection> getOneStopInterconnections(RoutesGraph routesGraph,
                                                              Connection request) {
         List<Path> oneStopPaths = routesGraph.getOneConnectionPaths(new Edge(request.getDepartureAirport(), request.getArrivalAirport()));
-        if(oneStopPaths.isEmpty() || oneStopPaths.get(0).getEdges().size()<2)
+        if (oneStopPaths.isEmpty() || oneStopPaths.get(0).getEdges().size() < 2)
             return Collections.emptyList();
         else {
             List<InterConnection> allInterConnections = new ArrayList<>();
-            for(Path path: oneStopPaths){
+            for (Path path : oneStopPaths) {
                 Edge edgeOne = path.getEdges().get(0);
                 List<InterConnection> edgeOneInterconnections = getEdgeInterconnectionsWithDateFix(edgeOne, request.getDeparture(), request.getArrival());
                 Edge edgeTwo = path.getEdges().get(1);
@@ -75,14 +75,14 @@ public class InterconnectionsService {
         }
     }
 
-    private List<InterConnection> joinInterconnections(List<InterConnection> edgeOneInterconnections, List<InterConnection> edgeTwoInterconnections){
+    private List<InterConnection> joinInterconnections(List<InterConnection> edgeOneInterconnections, List<InterConnection> edgeTwoInterconnections) {
         List<InterConnection> interConnections = new ArrayList<>();
-        for(InterConnection interConnectionOne: edgeOneInterconnections){
-            for(Connection connOne: interConnectionOne.getLegs()){
-                for(InterConnection interConnectionTwo: edgeTwoInterconnections) {
-                    for(Connection connTwo: interConnectionTwo.getLegs()) {
-                        if(connOne.getArrival().isBefore(connTwo.getDeparture())
-                                && Hours.hoursBetween(connOne.getArrival(), connTwo.getDeparture()).getHours()>=2){
+        for (InterConnection interConnectionOne : edgeOneInterconnections) {
+            for (Connection connOne : interConnectionOne.getLegs()) {
+                for (InterConnection interConnectionTwo : edgeTwoInterconnections) {
+                    for (Connection connTwo : interConnectionTwo.getLegs()) {
+                        if (connOne.getArrival().isBefore(connTwo.getDeparture())
+                                && Hours.hoursBetween(connOne.getArrival(), connTwo.getDeparture()).getHours() >= 2) {
                             interConnections.add(new InterConnection(1, Arrays.asList(connOne, connTwo)));
                         }
                     }
@@ -95,7 +95,7 @@ public class InterconnectionsService {
     private List<InterConnection> getDirectInterconnections(RoutesGraph routesGraph,
                                                             Connection request) {
         List<Path> directPaths = routesGraph.getDirectPaths(new Edge(request.getDepartureAirport(), request.getArrivalAirport()));
-        if(directPaths.isEmpty()||directPaths.get(0).getEdges().isEmpty())
+        if (directPaths.isEmpty() || directPaths.get(0).getEdges().isEmpty())
             return Collections.emptyList();
         else {
             return getEdgeInterconnectionsWithDateFix(directPaths.get(0).getEdges().get(0), request.getDeparture(), request.getArrival());
@@ -107,7 +107,7 @@ public class InterconnectionsService {
                                                                      DateTime arrivalDateTime) {
         List<InterConnection> interConnections = new ArrayList<>();
         DateTime requestDate = new DateTime(departureDateTime).withDayOfMonth(1).withTimeAtStartOfDay();
-        while(arrivalDateTime.isAfter(requestDate)) {
+        while (arrivalDateTime.isAfter(requestDate)) {
             interConnections.addAll(getEdgeInterconnections(departureDateTime, arrivalDateTime, edge, requestDate));
             requestDate = requestDate.plusMonths(1);
         }
@@ -117,23 +117,23 @@ public class InterconnectionsService {
     private List<InterConnection> getEdgeInterconnections(DateTime departure, DateTime arrival, Edge edge, DateTime requestDate) {
         List<Connection> connections = requestMonthConnections(requestDate, edge);
         List<InterConnection> interConnections = new ArrayList<>();
-        for (Connection conn: connections){
+        for (Connection conn : connections) {
             if (conn.getDeparture().isAfter(departure) && conn.getArrival().isBefore(arrival))
                 interConnections.add(new InterConnection(0, Collections.singletonList(conn)));
         }
         return interConnections;
     }
 
-    private List<Connection> requestMonthConnections(DateTime requestDate, Edge edge){
+    private List<Connection> requestMonthConnections(DateTime requestDate, Edge edge) {
         Month monthSchedules = schedulesServiceClient.getSchedules(edge.getStart(), edge.getEnd(), requestDate.getYear(), requestDate.getMonthOfYear());
         return convertMonthToConnections(monthSchedules, requestDate, edge);
     }
 
-    private List<Connection> convertMonthToConnections(Month monthSchedules, DateTime requestDate, Edge edge){
+    private List<Connection> convertMonthToConnections(Month monthSchedules, DateTime requestDate, Edge edge) {
         List<Connection> connections = new ArrayList<>();
-        if(monthSchedules.getDays()!=null) {
-            for (Day day: monthSchedules.getDays()) {
-                for (Flight flight: day.getFlights()) {
+        if (monthSchedules.getDays() != null) {
+            for (Day day : monthSchedules.getDays()) {
+                for (Flight flight : day.getFlights()) {
                     Connection conn = new Connection(
                             edge.getStart(),
                             edge.getEnd(),
@@ -148,7 +148,7 @@ public class InterconnectionsService {
 
     private RoutesGraph buildRoutesGraph(List<Route> availableRoutes) {
         RoutesGraph routesGraph = new RoutesGraph();
-        for (Route route: availableRoutes){
+        for (Route route : availableRoutes) {
             routesGraph.connect(new Edge(route.getAirportFrom(), route.getAirportTo()));
         }
         return routesGraph;

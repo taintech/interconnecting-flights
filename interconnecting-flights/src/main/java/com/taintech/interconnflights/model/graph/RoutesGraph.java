@@ -29,15 +29,15 @@ public class RoutesGraph {
 
     public List<Path> getDirectPaths(Edge edge) {
         List<Edge> directEdge = findEdges(Collections.singleton(edge.getStart()), edge.getEnd());
-        return directEdge.isEmpty()?Collections.emptyList():Collections.singletonList(new Path(directEdge));
+        return directEdge.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Path(directEdge));
     }
 
     public List<Path> getOneConnectionPaths(Edge edge) {
-        if(!map.containsKey(edge.getStart()))
+        if (!map.containsKey(edge.getStart()))
             return Collections.emptyList();
-        else{
+        else {
             List<Path> paths = new ArrayList<>();
-            for (Edge endEdge: findEdges(map.get(edge.getStart()), edge.getEnd())){
+            for (Edge endEdge : findEdges(map.get(edge.getStart()), edge.getEnd())) {
                 Edge startEdge = new Edge(edge.getStart(), endEdge.getStart());
                 paths.add(new Path(Arrays.asList(startEdge, endEdge)));
             }
@@ -50,10 +50,10 @@ public class RoutesGraph {
                 .collect(Collectors.toList());
     }
 
-    private List<Edge> findEdges(Set<String> startNodes, String endNode){
+    private List<Edge> findEdges(Set<String> startNodes, String endNode) {
         List<Edge> edges = new ArrayList<>();
-        for (String node: startNodes) {
-            if (map.containsKey(node) && map.get(node).contains(endNode)){
+        for (String node : startNodes) {
+            if (map.containsKey(node) && map.get(node).contains(endNode)) {
                 edges.add(new Edge(node, endNode));
             }
         }

@@ -1,7 +1,7 @@
 package com.taintech.ryanair.conf;
 
-import com.taintech.ryanair.props.RoutesServiceClientProperties;
 import com.taintech.ryanair.client.RoutesServiceClient;
+import com.taintech.ryanair.props.RoutesServiceClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

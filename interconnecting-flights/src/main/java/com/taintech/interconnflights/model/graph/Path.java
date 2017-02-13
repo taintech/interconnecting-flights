@@ -1,4 +1,4 @@
-package com.taintech.interconnflights.graph;
+package com.taintech.interconnflights.model.graph;
 
 import java.util.List;
 

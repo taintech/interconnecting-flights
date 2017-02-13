@@ -1,6 +1,8 @@
-package com.taintech.interconnflights.graph;
+package com.taintech.interconnflights.model.graph;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Author: Rinat Tainov
@@ -44,10 +46,8 @@ public class RoutesGraph {
     }
 
     public List<Path> getMaxOneConnectionPaths(Edge edge) {
-        List<Path> paths = new ArrayList<>();
-        paths.addAll(getDirectPaths(edge));
-        paths.addAll(getOneConnectionPaths(edge));
-        return paths;
+        return Stream.concat(getDirectPaths(edge).stream(), getOneConnectionPaths(edge).stream())
+                .collect(Collectors.toList());
     }
 
     private List<Edge> findEdges(Set<String> startNodes, String endNode){

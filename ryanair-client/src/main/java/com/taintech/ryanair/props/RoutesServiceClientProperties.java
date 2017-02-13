@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 @ConfigurationProperties("ryanair.routes")
 public class RoutesServiceClientProperties {

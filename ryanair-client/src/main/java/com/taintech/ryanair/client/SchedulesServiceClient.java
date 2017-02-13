@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 @Service
 public class SchedulesServiceClient {

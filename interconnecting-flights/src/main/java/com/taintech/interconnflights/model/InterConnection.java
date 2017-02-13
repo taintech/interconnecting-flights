@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 public class InterConnection {
     private int stops;

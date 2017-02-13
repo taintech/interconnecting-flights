@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 public class Connection {
     private String departureAirport;

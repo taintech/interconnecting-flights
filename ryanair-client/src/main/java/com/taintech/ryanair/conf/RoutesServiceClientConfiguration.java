@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 @Configuration
 @EnableConfigurationProperties(RoutesServiceClientProperties.class)

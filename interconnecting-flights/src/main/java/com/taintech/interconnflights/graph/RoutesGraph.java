@@ -4,7 +4,7 @@ import java.util.*;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 public class RoutesGraph {
     private HashMap<String, Set<String>> map;
@@ -32,10 +32,8 @@ public class RoutesGraph {
 
     public List<Path> maxOneConnectionPaths(String startNode, String endNode) {
         List<Path> paths = new ArrayList<>();
-        List<Edge> directEdge = findEdges(Collections.singleton(startNode), endNode);
-        if (!directEdge.isEmpty()) {
-            paths.add(new Path(directEdge));
-        }
+        List<Path> directPaths = directPaths(startNode, endNode);
+        paths.addAll(directPaths);
         for (Edge endEdge: findEdges(map.get(startNode), endNode)){
             Edge startEdge = new Edge(startNode, endEdge.getStart());
             paths.add(new Path(Arrays.asList(startEdge, endEdge)));

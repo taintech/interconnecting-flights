@@ -2,7 +2,7 @@ package com.taintech.interconnflights.graph;
 
 /**
  * Author: Rinat Tainov
- * Date: 11/02/2017
+ * Date: 12/02/2017
  */
 public class Edge {
     private String start;

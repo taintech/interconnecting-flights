@@ -10,6 +10,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.rmi.UnexpectedException;
 
 /**
  * Author: Rinat Tainov
@@ -32,6 +33,6 @@ public class SimpleErrorHandler implements ResponseErrorHandler {
         while((line = bufferedReader.readLine()) != null){
             log.error(line);
         }
-        throw new UnknownError("Unknown exception in RyanAir service!");
+        throw new UnexpectedException("Unexpected exception in RyanAir service!");
     }
 }

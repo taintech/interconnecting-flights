@@ -22,6 +22,7 @@ public class Connection {
         this.arrivalAirport = arrivalAirport;
         this.departure = departure;
         this.arrival = arrival;
+        //TODO reuse pattern form controller
         this.departureDateTime = departure.toString("yyyy-MM-dd'T'HH:mm");
         this.arrivalDateTime = arrival.toString("yyyy-MM-dd'T'HH:mm");
     }

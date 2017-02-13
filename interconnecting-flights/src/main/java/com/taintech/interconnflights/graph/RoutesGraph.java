@@ -31,12 +31,16 @@ public class RoutesGraph {
     }
 
     public List<Path> getOneConnectionPaths(Edge edge) {
-        List<Path> paths = new ArrayList<>();
-        for (Edge endEdge: findEdges(map.get(edge.getStart()), edge.getEnd())){
-            Edge startEdge = new Edge(edge.getStart(), endEdge.getStart());
-            paths.add(new Path(Arrays.asList(startEdge, endEdge)));
+        if(!map.containsKey(edge.getStart()))
+            return Collections.emptyList();
+        else{
+            List<Path> paths = new ArrayList<>();
+            for (Edge endEdge: findEdges(map.get(edge.getStart()), edge.getEnd())){
+                Edge startEdge = new Edge(edge.getStart(), endEdge.getStart());
+                paths.add(new Path(Arrays.asList(startEdge, endEdge)));
+            }
+            return paths;
         }
-        return paths;
     }
 
     public List<Path> getMaxOneConnectionPaths(Edge edge) {
@@ -49,7 +53,7 @@ public class RoutesGraph {
     private List<Edge> findEdges(Set<String> startNodes, String endNode){
         List<Edge> edges = new ArrayList<>();
         for (String node: startNodes) {
-            if (map.get(node).contains(endNode)){
+            if (map.containsKey(node) && map.get(node).contains(endNode)){
                 edges.add(new Edge(node, endNode));
             }
         }
